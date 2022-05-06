@@ -3,7 +3,31 @@
 为了能够清晰直观的看到层与层之间的联系，增加深度网络的精度，拥有了在编程过程中的可视化工具库 
 # 1.nn.Module 
 一个抽象的概念，既可以表示神经网络中的某个层（layer），也可以表示一个包含很多层的神经网络。
-在实际使用中，最常见的做法是继承nn.Module，撰写自己的网络/层。全连接层，又名仿射层，输出y和输入x满足y=W x+b，W 和b是可学习的参数。
+在实际使用中，最常见的做法是继承nn.Module，撰写自己的网络/层。全连接层，又名仿射层，输出y和输入x满足y=W x+b，W 和b是可学习的参数。 
+```
+In:
+from torch.autograd import Variable as V 
+from torch import nn 
+import torch as t
+class Linear(nn.Module):
+    def __init__(self, in_features, out_features):
+        super(Linear, self).__init__()
+        self.w = nn.Parameter(t.randn(in_features, out_features))
+        self.b = nn.Parameter(t.randn(out_features))
+    def forward(self, x):
+        x = x.mm(self.w)
+        return x+self.b.expand_as(x)
+layer = Linear(4,3) 
+input = V(t.randn(2,4)) 
+output = layer(input) 
+output
+ ```
+ ```  
+ out:  
+ Out[7]: 
+tensor([[ 1.7438,  0.5566, -1.4985],
+        [-0.2076, -0.4449, -0.7206]], grad_fn=<AddBackward0>)
+```
 - 自定义层Linear必须继承nn.Module，并且在其构造函数中需调用nn.Module的构造函数，即super（Linear，self）.init （）或nn.Module.init （self）。
 - 在构造函数 init 中必须自己定义可学习的参数，并封装成Parameter，
 把w和b封装成Parameter。Parameter是一种特殊的Variable，但其默认需要求导（requires_grad=True）。
