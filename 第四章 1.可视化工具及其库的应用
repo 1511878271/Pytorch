@@ -1,0 +1,21 @@
+**为什么要可视化工具？**
+在深度学习框架中，层与层之间的关系很复杂，并且随着深度的提高，不断加深。 
+为了能够清晰直观的看到层与层之间的联系，增加深度网络的精度，拥有了在编程过程中的可视化工具库 
+# 1.nn.Module 
+一个抽象的概念，既可以表示神经网络中的某个层（layer），也可以表示一个包含很多层的神经网络。
+在实际使用中，最常见的做法是继承nn.Module，撰写自己的网络/层。全连接层，又名仿射层，输出y和输入x满足y=W x+b，W 和b是可学习的参数。
+- 自定义层Linear必须继承nn.Module，并且在其构造函数中需调用nn.Module的构造函数，即super（Linear，self）.init （）或nn.Module.init （self）。
+- 在构造函数 init 中必须自己定义可学习的参数，并封装成Parameter，
+把w和b封装成Parameter。Parameter是一种特殊的Variable，但其默认需要求导（requires_grad=True）。
+- forward函数实现前向传播过程，其输入可以是一个或多个variable，对x的任何操作也必须是variable支持的操作。
+- 无须写反向传播函数，因其前向传播都是对variable进行操作，nn.Module能够利用autograd自动实现反向传播.
+- Module中的可学习参数可以通过named parameters （）或者parameters （）返回迭代器，前者会给每个parameter附上名字，使其更具有辨识度。
+- Module能够自动检测到自己的parameter，并将其作为学习参数。除了parameter，Module还包含子Module，主Module能够递归查找子Module中的parameter。下面再来看看稍微复杂一点的网络：多层感知机。
+- Parameter直接命名。例如self.param name=nn.Parameter（t.randn（3，4）），命名为param name。
+- 子module中的parameter，会在其名字之前加上当前module的名字。例如self.sub module=SubModel （），SubModel 中有个 parameter
+
+
+- 构造函数的参数，如nn.Linear（in_features，out_features，bias），需关注这三个参数的作用。
+-  属性、可学习参数和子module。如nn.Linear中有weight和bias两个可学习参数，不包含子module。
+-  输入输出的形状，如nn.linear的输入形状是（N，input_features），输出为（N，output_features），N是batch_size。
+这些自定义layer对输入形状都有假设：输入的不是单个数据，而是一个batch。若想输入一个数据，必须调用unsqueeze （0）函数将数据伪装成batch_size=1的batch。
